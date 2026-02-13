@@ -26,10 +26,10 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --noconfirm --windowed --onefile h5_to_segy_gui.py
+          pyinstaller --noconfirm --windowed --onefile main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: h5_to_segy_gui-windows
+          name: h5-segy-windows
           path: dist/*.exe
