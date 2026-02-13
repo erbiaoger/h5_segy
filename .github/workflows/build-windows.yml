@@ -14,7 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            bin: main.exe
+            out: main-windows.exe
+            icon: assets/icon.ico
+          - os: macos-latest
+            bin: main
+            out: main-macos
+            icon: assets/icon.icns
 
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +39,22 @@ jobs:
 
       - name: Build
         run: |
-          pyinstaller --noconfirm --windowed --onefile main.py
+          if [ -f "${{ matrix.icon }}" ]; then
+            pyinstaller --noconfirm --windowed --onefile --icon "${{ matrix.icon }}" main.py
+          else
+            pyinstaller --noconfirm --windowed --onefile main.py
+          fi
+        shell: bash
+
+      - name: Rename artifact
+        run: |
+          if [ -f "dist/${{ matrix.bin }}" ]; then
+            mv "dist/${{ matrix.bin }}" "dist/${{ matrix.out }}"
+          fi
+        shell: bash
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/main.exe
-            dist/main
+            dist/${{ matrix.out }}
